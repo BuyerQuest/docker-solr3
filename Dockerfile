@@ -4,7 +4,8 @@ WORKDIR /usr/local/tomcat
 # xmlstarlet, jq, lz4
 RUN  apt-get update \
   && apt-get install -y --no-install-recommends xmlstarlet jq liblz4-tool \
-  && rm -r /var/lib/apt/lists/*
+  && rm -r /var/lib/apt/lists/* \
+  && apt-get clean
 
 # SOLR 3
 RUN  mkdir solr \
@@ -43,8 +44,7 @@ ENV CATALINA_OPTS -Xms${SOLR_XMS} -Xmx${SOLR_XMX} -Dlog4j.configuration=file:/us
 RUN  mkdir /cores \
   && ln -s /cores solr/cores \
   && mkdir /core-init
-VOLUME /cores
-VOLUME /core-init
+VOLUME ["/cores", "/core-init"]
 
 EXPOSE 8080
 #CMD ["generate-solrxml-and-run-tomcat.sh"]
