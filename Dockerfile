@@ -46,5 +46,4 @@ RUN  mkdir /cores \
 VOLUME ["/cores", "/core-init"]
 
 EXPOSE 8080
-#CMD ["generate-solrxml-and-run-tomcat.sh"]
 CMD ["run-tomcat-and-create-cores.sh"]
