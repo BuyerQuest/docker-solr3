@@ -1,8 +1,14 @@
 #!/bin/bash
 set -umo pipefail
 
-# Start tomcat
-catalina.sh run &
+# Trap the SIGTERM so we can exit cleanly
+trap 'echo Stopping SOLR; catalina.sh stop; exit $?' SIGTERM
+
+# Start Tomcat
+catalina.sh start
+
+# Show output of Tomcat startup
+tail -f logs/catalina.out &
 
 # Wait for SOLR to start by querying the admin API
 for try in $(seq 1 300); do
@@ -19,20 +25,15 @@ done
 set -e
 
 # Then try to read some information from a SOLR admin API until we succeed
-curl -JL --retry 300 --retry-delay 1 "http://localhost:8080/solr/admin/cores" --silent
+curl -JL --retry 300 --retry-delay 1 "http://localhost:8080/solr/admin/cores" --silent > /dev/null
 echo "SOLR is online, creating any missing cores"
 
-# Get a list of non-default cores
-cores=$(curl "localhost:8080/solr/admin/cores?wt=json" --silent | jq -r '.status | values[] | select( .name == "" | not ) | .name')
-
 # Check through the cores already present in SOLR and add any missing ones
-cd solr
-find -H cores -mindepth 1 -maxdepth 1 -type d | while read coredir; do
-  corename=$(basename $coredir)
-  if [[ $cores == *"$corename"* ]]; then
-    echo "$corename is already loaded"
-  else
-    # Give the user a chance to process the core before we load it
+find -H /cores -mindepth 1 -maxdepth 1 -type d | while read coredir; do
+  # If the core is NOT loaded, coreSearch will be a blank string
+  coreSearch=$(curl "localhost:8080/solr/admin/cores?wt=json" --silent | jq -r ".status | values[] | select ( .instanceDir == \"$coredir/\" )")
+  if [[ -z "$coreSearch" ]]; then
+    # Run any user-supplied core init scripts
     for f in /core-init/*; do
       # shellcheck disable=SC1090
       case "$f" in
@@ -40,12 +41,13 @@ find -H cores -mindepth 1 -maxdepth 1 -type d | while read coredir; do
         *)    echo "$0: ignoring $f" ;;
       esac
     done
+
     # Load the core with cURL
+    corename=$(basename $coredir)
     echo "Creating core $corename"
-    curl --fail "http://localhost:8080/solr/admin/cores?action=CREATE&name=$corename&instanceDir=$coredir&wt=json" --silent | jq -r
+    curl --fail "http://localhost:8080/solr/admin/cores?action=CREATE&name=$corename&instanceDir=$coredir&wt=json" --silent | jq -r .
   fi
 done
-cd ..
 
-# Return control to catalina.sh
-fg %1
+# Hang around until we get the SIGTERM
+tail -f /dev/null & wait

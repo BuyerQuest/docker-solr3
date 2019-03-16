@@ -23,10 +23,10 @@ RUN  mkdir solr \
 
 # SOLR Plugins: commons-lang3, mongo-java-driver, mongo-importer, mysql-connector
 WORKDIR solr/lib
-RUN curl -OJL "http://search.maven.org/remotecontent?filepath=org/apache/commons/commons-lang3/3.6/commons-lang3-3.6.jar"
-RUN curl -OJL "http://search.maven.org/remotecontent?filepath=org/mongodb/mongo-java-driver/3.3.0/mongo-java-driver-3.3.0.jar"
+RUN curl -OJL "https://search.maven.org/remotecontent?filepath=org/apache/commons/commons-lang3/3.6/commons-lang3-3.6.jar"
+RUN curl -OJL "https://search.maven.org/remotecontent?filepath=org/mongodb/mongo-java-driver/3.3.0/mongo-java-driver-3.3.0.jar"
 RUN curl -OJL "https://github.com/BuyerQuest/SolrMongoImporter/releases/download/v1.2.0/solr-mongo-importer-1.2.0.jar"
-RUN curl -OJL "http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.34/mysql-connector-java-5.1.34.jar"
+RUN curl -OJL "https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.34/mysql-connector-java-5.1.34.jar"
 
 WORKDIR /usr/local/tomcat
 # Logger configuration
@@ -43,9 +43,10 @@ ENV CATALINA_OPTS -Xms${SOLR_XMS} -Xmx${SOLR_XMX} -Dlog4j.configuration=file:/us
 RUN  mkdir /cores \
   && ln -s /cores solr/cores \
   && mkdir /core-init
-VOLUME /cores
-VOLUME /core-init
+VOLUME ["/cores", "/core-init"]
+
+HEALTHCHECK --interval=5s --start-period=15s \
+  CMD test "$(curl --fail --silent http://localhost:8080/solr/admin/ping?wt=json | jq -r '.status')" = "OK"
 
 EXPOSE 8080
-#CMD ["generate-solrxml-and-run-tomcat.sh"]
 CMD ["run-tomcat-and-create-cores.sh"]

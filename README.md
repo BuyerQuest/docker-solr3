@@ -8,6 +8,17 @@ Mount a directory of SOLR cores, one per subdir, to `/cores` inside the containe
 
 If you want to provide extra configuration to Tomcat, add the required items to the EXTRA_CATALINA_OPTS environment variable.
 
+#### Example
+
+```bash
+docker run -d \
+  --name solr3 \
+  -p 8080:8080 \
+  -v $PWD/cores:/cores \
+  -v $PWD/core-init:/core-init:ro \
+  buyerquest/solr3:latest
+```
+
 # Volumes
 
 |    Volume    |                                                                              Purpose                                                                              |
