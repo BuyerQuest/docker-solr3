@@ -25,7 +25,7 @@ done
 set -e
 
 # Then try to read some information from a SOLR admin API until we succeed
-curl -JL --retry 300 --retry-delay 1 "http://localhost:8080/solr/admin/cores" --silent
+curl -JL --retry 300 --retry-delay 1 "http://localhost:8080/solr/admin/cores" --silent > /dev/null
 echo "SOLR is online, creating any missing cores"
 
 # Get a list of non-default cores
