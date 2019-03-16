@@ -42,7 +42,7 @@ find -H cores -mindepth 1 -maxdepth 1 -type d | while read coredir; do
     done
     # Load the core with cURL
     echo "Creating core $corename"
-    curl --fail "http://localhost:8080/solr/admin/cores?action=CREATE&name=$corename&instanceDir=$coredir&wt=json" --silent | jq -r
+    curl --fail "http://localhost:8080/solr/admin/cores?action=CREATE&name=$corename&instanceDir=$coredir&wt=json" --silent | jq -r .
   fi
 done
 cd ..
