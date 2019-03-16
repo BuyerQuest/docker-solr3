@@ -1,8 +1,14 @@
 #!/bin/bash
 set -umo pipefail
 
-# Start tomcat
-catalina.sh run &
+# Trap the SIGTERM so we can exit cleanly
+trap 'echo Stopping SOLR; catalina.sh stop; exit $?' SIGTERM
+
+# Start Tomcat
+catalina.sh start
+
+# Show output of Tomcat startup
+tail -f logs/catalina.out &
 
 # Wait for SOLR to start by querying the admin API
 for try in $(seq 1 300); do
@@ -47,5 +53,5 @@ find -H cores -mindepth 1 -maxdepth 1 -type d | while read coredir; do
 done
 cd ..
 
-# Return control to catalina.sh
-fg %1
+# Hang around until we get the SIGTERM
+tail -f /dev/null & wait
