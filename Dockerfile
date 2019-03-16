@@ -45,5 +45,8 @@ RUN  mkdir /cores \
   && mkdir /core-init
 VOLUME ["/cores", "/core-init"]
 
+HEALTHCHECK --interval=5s --start-period=15s \
+  CMD test "$(curl --fail --silent http://localhost:8080/solr/admin/ping?wt=json | jq -r '.status')" = "OK"
+
 EXPOSE 8080
 CMD ["run-tomcat-and-create-cores.sh"]
