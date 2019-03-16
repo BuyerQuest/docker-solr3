@@ -4,8 +4,7 @@ WORKDIR /usr/local/tomcat
 # xmlstarlet, jq, lz4
 RUN  apt-get update \
   && apt-get install -y --no-install-recommends xmlstarlet jq liblz4-tool \
-  && rm -r /var/lib/apt/lists/* \
-  && apt-get clean
+  && rm -r /var/lib/apt/lists/*
 
 # SOLR 3
 RUN  mkdir solr \
