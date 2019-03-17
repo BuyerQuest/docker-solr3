@@ -7,8 +7,8 @@ trap 'echo Stopping SOLR; catalina.sh stop; exit $?' SIGTERM
 # Start Tomcat
 catalina.sh start
 
-# Show output of Tomcat startup
-tail -f logs/catalina.out &
+# Show catalina log output, but suppress output of healthcheck execution
+tail -f logs/catalina.out | grep -P -v --line-buffered "$STDOUT_FILTER" &
 
 # Wait for SOLR to start by querying the admin API
 for try in $(seq 1 300); do

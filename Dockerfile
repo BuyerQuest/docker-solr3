@@ -39,6 +39,9 @@ ENV SOLR_XMS 128m
 ENV SOLR_XMX 1024m
 ENV CATALINA_OPTS -Xms${SOLR_XMS} -Xmx${SOLR_XMX} -Dlog4j.configuration=file:/usr/local/tomcat/conf/log4j.properties -Dsolr.allow.unsafe.resourceloading=true $EXTRA_CATALINA_OPTS
 
+# This is a PCRE regex that the container's catalina.out tail is filtered against. Keeps healthcheck spam out of your docker log
+ENV STDOUT_FILTER '^\d{2}-[a-zA-Z]{3}-\d{4,} (\d{2}(:|.)+){3}\d{3} INFO \[http-nio-([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])-exec-\d+\] org\.apache\.solr\.core\.SolrCore\.execute \[\] webapp=\/solr path=\/admin\/ping params={wt=json&docker-healthcheck=true}( hits=0)? status=0 QTime=\d+\s*$'
+
 # Create an easy-to-use path for core data and symlink it
 RUN  mkdir /cores \
   && ln -s /cores solr/cores \
@@ -46,7 +49,7 @@ RUN  mkdir /cores \
 VOLUME ["/cores", "/core-init"]
 
 HEALTHCHECK --interval=5s --start-period=15s \
-  CMD test "$(curl --fail --silent http://localhost:8080/solr/admin/ping?wt=json | jq -r '.status')" = "OK"
+  CMD test "$(curl --fail --silent 'http://localhost:8080/solr/admin/ping?wt=json&docker-healthcheck=true' | jq -r '.status')" = "OK"
 
 EXPOSE 8080
 CMD ["run-tomcat-and-create-cores.sh"]
