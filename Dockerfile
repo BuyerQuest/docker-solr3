@@ -46,7 +46,7 @@ ENV STDOUT_FILTER '^\d{2}-[a-zA-Z]{3}-\d{4,} (\d{2}(:|.)+){3}\d{3} INFO \[http-n
 RUN  mkdir /cores \
   && ln -s /cores solr/cores \
   && mkdir /core-init
-VOLUME ["/cores", "/core-init"]
+VOLUME ["/cores"]
 
 HEALTHCHECK --interval=5s --start-period=15s \
   CMD test "$(curl --fail --silent 'http://localhost:8080/solr/admin/ping?wt=json&docker-healthcheck=true' | jq -r '.status')" = "OK"
