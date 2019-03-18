@@ -24,6 +24,7 @@ docker run -d \
 |    Volume    |                                                                              Purpose                                                                              |
 |:------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |   `/cores`   | Solr cores go here. One per folder inside of this one.                                                                                                            |
+
 # Environment
 
 | Variable              | Default |
