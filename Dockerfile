@@ -33,6 +33,8 @@ WORKDIR /usr/local/tomcat
 COPY ./artifacts/log4j.properties conf/
 # bootstrapper that creates our solr cores
 COPY ./artifacts/run-tomcat-and-create-cores.sh bin/
+# Container-init script
+COPY ./artifacts/container-init.sh bin/
 
 # For customization, set EXTRA_CATALINA_OPTS
 ENV SOLR_XMS 128m
@@ -45,7 +47,7 @@ ENV STDOUT_FILTER '^\d{2}-[a-zA-Z]{3}-\d{4,} (\d{2}(:|.)+){3}\d{3} INFO \[http-n
 # Create an easy-to-use path for core data and symlink it
 RUN  mkdir /cores \
   && ln -s /cores solr/cores \
-  && mkdir /core-init
+  && mkdir /core-init /container-init
 VOLUME ["/cores"]
 
 HEALTHCHECK --interval=5s --start-period=15s \

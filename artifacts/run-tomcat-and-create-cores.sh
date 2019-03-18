@@ -1,6 +1,9 @@
 #!/bin/bash
 set -umo pipefail
 
+# On the very first container startup, we can run custom init scripts
+container-init.sh
+
 # Trap the SIGTERM so we can exit cleanly
 trap 'echo Stopping SOLR; catalina.sh stop; exit $?' SIGTERM
 
