@@ -24,8 +24,6 @@ docker run -d \
 |    Volume    |                                                                              Purpose                                                                              |
 |:------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |   `/cores`   | Solr cores go here. One per folder inside of this one.                                                                                                            |
-| `/core-init` | All .sh files inside of this folder will be executed before any core is `CREATE`d in SOLR. The script will be provided the path of the core as the `$1` argument. |
-
 # Environment
 
 | Variable              | Default |
